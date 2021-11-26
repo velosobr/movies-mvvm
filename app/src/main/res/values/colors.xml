@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">@color/BicycleTyres</color>
+    <color name="colorPrimaryDark">@color/death</color>
+    <color name="colorAccent">@color/FireOpal</color>
+
+
+    <color name="FireOpal">#F25C54</color>
+    <color name="BitterSweet">#F27059</color>
+    <color name="coral">#F4845F</color>
+    <color name="AtomicTangerine">#F79D65</color>
+    <color name="MellowApricot">#F7B267</color>
+    <color name="Charcoal">#264653</color>
+    <color name="PersianGreen">#2A9D8F</color>
+    <color name="BicycleTyres">#3E4147</color>
+    <color name="death">#2A2C31</color>>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="offWhite">#FFF5F5F5</color>
+    <color name="RaisinBlack">#19181A</color>
+
+</resources>

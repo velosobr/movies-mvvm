@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Best Movies to Watch</string>
+    <string name="category_title">popular Movies</string>
+    <string name="category_description">Most popular movies</string>
+    <string name="movie_poster_content_description">Movie Poster</string>
+    <string name="movie_title_text">Movie Title</string>
+</resources>
