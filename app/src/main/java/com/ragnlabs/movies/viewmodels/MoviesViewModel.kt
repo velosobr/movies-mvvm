@@ -23,6 +23,12 @@ class MoviesViewModel @Inject constructor(
     private val _popularMoviesList = MutableLiveData<List<Movie>>()
     val popularMoviesList: LiveData<List<Movie>>
         get() = _popularMoviesList
+    private val _topRatedMoviesList = MutableLiveData<List<Movie>>()
+    val topRatedMoviesList: LiveData<List<Movie>>
+        get() = _topRatedMoviesList
+    private val _upcomingMoviesList = MutableLiveData<List<Movie>>()
+    val upcomingMoviesList: LiveData<List<Movie>>
+        get() = _upcomingMoviesList
 
     private val _searchMovies = MutableLiveData<Resource<MovieResponse>>()
     val searchMovies: LiveData<Resource<MovieResponse>>
@@ -30,9 +36,11 @@ class MoviesViewModel @Inject constructor(
 
     init {
         getPopularMovies()
+        getTopRatedMovies()
+        getUpcomingMovies()
     }
 
-    fun getPopularMovies(page: Int = 1) = runBlocking {
+    private fun getPopularMovies(page: Int = 1) = runBlocking {
 
         movieRepository.getPopularMovies(page).let { moviesResponse ->
 
@@ -42,6 +50,36 @@ class MoviesViewModel @Inject constructor(
                 Log.d(
                     "tag",
                     "occurred error on getPopularMovies: ${moviesResponse.code()} "
+                )
+            }
+        }
+    }
+
+    private fun getTopRatedMovies(page: Int = 1) = runBlocking {
+
+        movieRepository.getTopRatedMovies(page).let { moviesResponse ->
+
+            if (moviesResponse.isSuccessful) {
+                _topRatedMoviesList.postValue(moviesResponse.body()?.results)
+            } else {
+                Log.d(
+                    "tag",
+                    "occurred error on getTopRatedMovies: ${moviesResponse.code()} "
+                )
+            }
+        }
+    }
+
+    private fun getUpcomingMovies(page: Int = 1) = runBlocking {
+
+        movieRepository.getUpcomingMovies(page).let { moviesResponse ->
+
+            if (moviesResponse.isSuccessful) {
+                _upcomingMoviesList.postValue(moviesResponse.body()?.results)
+            } else {
+                Log.d(
+                    "tag",
+                    "occurred error on getUpcomingMovies: ${moviesResponse.code()} "
                 )
             }
         }
