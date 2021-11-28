@@ -26,7 +26,7 @@ class TopRatedMoviesAdapter() :
         }
     }
 
-    private val differ = AsyncListDiffer(this, diffCallBack)
+    val differ = AsyncListDiffer(this, diffCallBack)
 
     var movies: List<Movie>
         get() = differ.currentList

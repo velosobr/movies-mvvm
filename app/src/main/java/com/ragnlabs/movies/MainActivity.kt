@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ragnlabs.movies.adapters.PopularMoviesAdapter
 import com.ragnlabs.movies.adapters.TopRatedMoviesAdapter
@@ -68,9 +67,28 @@ class MainActivity : AppCompatActivity() {
             setHasFixedSize(true)
         }
 
-        viewModel.topRatedMoviesList.observe(this, { moviesList ->
-            topRatedMoviesAdapter.movies = moviesList
-        })
+        viewModel.topRatedMoviesList.observe(
+            this,
+            { response ->
+                when (response) {
+                    is Resource.Success -> {
+                        hideProgress()
+                        response.data?.let { movieResponse ->
+                            topRatedMoviesAdapter.differ.submitList(movieResponse.results)
+                        }
+                    }
+                    is Resource.Error -> {
+                        hideProgress()
+                        response.message?.let { message ->
+                            Log.e("tag", "An error occurred in topRatedMoviesList: $message")
+                        }
+                    }
+                    is Resource.Loading -> {
+                        showProgressBar()
+                    }
+                }
+            }
+        )
     }
 
     private fun setupUpcomingMovies() {
@@ -87,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.upcomingMoviesList.observe(
             this,
-            Observer { response ->
+            { response ->
                 when (response) {
                     is Resource.Success -> {
                         hideProgress()
@@ -98,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                     is Resource.Error -> {
                         hideProgress()
                         response.message?.let { message ->
-                            Log.e("tag", "An error occurred: $message")
+                            Log.e("tag", "An error occurred in upcomingMoviesList: $message")
                         }
                     }
                     is Resource.Loading -> {

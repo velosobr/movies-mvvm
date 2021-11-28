@@ -10,8 +10,6 @@ import com.ragnlabs.movies.models.MovieResponse
 import com.ragnlabs.movies.repository.MovieRepository
 import com.ragnlabs.movies.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import retrofit2.Response
@@ -25,19 +23,16 @@ class MoviesViewModel @Inject constructor(
     private val _popularMoviesList = MutableLiveData<List<Movie>>()
     val popularMoviesList: LiveData<List<Movie>>
         get() = _popularMoviesList
-    private val _topRatedMoviesList = MutableLiveData<List<Movie>>()
-    val topRatedMoviesList: LiveData<List<Movie>>
-        get() = _topRatedMoviesList
+
+    val topRatedMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
 
     val upcomingMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
 
-    private val _searchMovies = MutableLiveData<Resource<MovieResponse>>()
-    val searchMovies: LiveData<Resource<MovieResponse>>
-        get() = _searchMovies
+    val searchMovies: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
 
     init {
-        // getPopularMovies()
-        // getTopRatedMovies()
+// getPopularMovies()
+        getTopRatedMovies()
         getUpcomingMovies()
     }
 
@@ -56,28 +51,19 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
-    private fun getTopRatedMovies(page: Int = 1) = runBlocking {
-
-        movieRepository.getTopRatedMovies(page).let { moviesResponse ->
-
-            if (moviesResponse.isSuccessful) {
-                _topRatedMoviesList.postValue(moviesResponse.body()?.results)
-            } else {
-                Log.d(
-                    "tag",
-                    "occurred error on getTopRatedMovies: ${moviesResponse.code()} "
-                )
-            }
-        }
+    private fun getTopRatedMovies(page: Int = 1) = viewModelScope.launch {
+        topRatedMoviesList.postValue(Resource.Loading())
+        val response = movieRepository.getTopRatedMovies(page)
+        topRatedMoviesList.postValue(handleResponse(response))
     }
 
-    private fun getUpcomingMovies(page: Int = 1) = CoroutineScope(Dispatchers.Main).launch {
+    private fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
         upcomingMoviesList.postValue(Resource.Loading())
         val response = movieRepository.getUpcomingMovies(page)
-        upcomingMoviesList.postValue(handleSearchMoviesResponse(response))
+        upcomingMoviesList.postValue(handleResponse(response))
     }
 
-    private fun handleSearchMoviesResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
+    private fun handleResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
         if (response.isSuccessful) {
             response.body()?.let {
                 return Resource.Success(it)
@@ -86,18 +72,10 @@ class MoviesViewModel @Inject constructor(
         return Resource.Error(response.message())
     }
 
-    //    fun getPopularMoviesOtherWay(page: Int = 1) {
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val movies = withContext(Dispatchers.Default) {
-//                movieRepository.getPopularMovies(page)
-//            }
-//            _popularMoviesLiveData.value = movies.body()?.results
-//        }
-//    }
     fun searchMovies(searchQuery: String) = viewModelScope.launch {
-        _searchMovies.postValue(Resource.Loading())
+        searchMovies.postValue(Resource.Loading())
         val response = movieRepository.searchMovies(searchQuery = searchQuery)
-        _searchMovies.postValue(handleSearchMoviesResponse(response))
+        searchMovies.postValue(handleResponse(response))
     }
 
     private fun handleSearchMoviesResponseOLD(response: Response<MovieResponse>): Resource<MovieResponse> {
