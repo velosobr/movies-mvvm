@@ -12,7 +12,7 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/linearLayout"
+            android:id="@+id/popularMovieslinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -33,13 +33,77 @@
 
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/moviesListRecyclerView"
+                android:id="@+id/popularMoviesListRecyclerView"
                 android:layout_width="383dp"
-                android:layout_height="match_parent"
-                tools:listitem="@layout/movie_item" />
-
-
+                android:layout_height="match_parent" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/topRatedLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popularMovieslinearLayout">
+
+            <TextView
+                android:id="@+id/topRatedTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/top_rated_title"
+                android:textColor="@color/offWhite"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/topRatedMoviesListRecyclerView"
+                android:layout_width="383dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/upcomingLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/topRatedLinearLayout">
+
+            <TextView
+                android:id="@+id/upcomingTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/upcoming_title"
+                android:textColor="@color/offWhite"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/upcomingMoviesListRecyclerView"
+                android:layout_width="383dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/paginationProgressBar"
+            style="?attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </ScrollView>

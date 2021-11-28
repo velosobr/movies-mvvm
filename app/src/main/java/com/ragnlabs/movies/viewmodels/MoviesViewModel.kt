@@ -24,15 +24,19 @@ class MoviesViewModel @Inject constructor(
     val popularMoviesList: LiveData<List<Movie>>
         get() = _popularMoviesList
 
-    private val _searchMovies = MutableLiveData<Resource<MovieResponse>>()
-    val searchMovies: LiveData<Resource<MovieResponse>>
-        get() = _searchMovies
+    val topRatedMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
+
+    val upcomingMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
+
+    val searchMovies: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
 
     init {
-        getPopularMovies()
+// getPopularMovies()
+        getTopRatedMovies()
+        getUpcomingMovies()
     }
 
-    fun getPopularMovies(page: Int = 1) = runBlocking {
+    private fun getPopularMovies(page: Int = 1) = runBlocking {
 
         movieRepository.getPopularMovies(page).let { moviesResponse ->
 
@@ -47,21 +51,34 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
-    //    fun getPopularMoviesOtherWay(page: Int = 1) {
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val movies = withContext(Dispatchers.Default) {
-//                movieRepository.getPopularMovies(page)
-//            }
-//            _popularMoviesLiveData.value = movies.body()?.results
-//        }
-//    }
-    fun searchMovies(searchQuery: String) = viewModelScope.launch {
-        _searchMovies.postValue(Resource.Loading())
-        val response = movieRepository.searchMovies(searchQuery = searchQuery)
-        _searchMovies.postValue(handleSearchMoviesResponse(response))
+    private fun getTopRatedMovies(page: Int = 1) = viewModelScope.launch {
+        topRatedMoviesList.postValue(Resource.Loading())
+        val response = movieRepository.getTopRatedMovies(page)
+        topRatedMoviesList.postValue(handleResponse(response))
     }
 
-    private fun handleSearchMoviesResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
+    private fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
+        upcomingMoviesList.postValue(Resource.Loading())
+        val response = movieRepository.getUpcomingMovies(page)
+        upcomingMoviesList.postValue(handleResponse(response))
+    }
+
+    private fun handleResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
+        if (response.isSuccessful) {
+            response.body()?.let {
+                return Resource.Success(it)
+            }
+        }
+        return Resource.Error(response.message())
+    }
+
+    fun searchMovies(searchQuery: String) = viewModelScope.launch {
+        searchMovies.postValue(Resource.Loading())
+        val response = movieRepository.searchMovies(searchQuery = searchQuery)
+        searchMovies.postValue(handleResponse(response))
+    }
+
+    private fun handleSearchMoviesResponseOLD(response: Response<MovieResponse>): Resource<MovieResponse> {
         if (response.isSuccessful) {
             response.body()?.let {
                 return Resource.Success(it)

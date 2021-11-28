@@ -1,4 +1,4 @@
-package com.ragnlabs.movies.adapter
+package com.ragnlabs.movies.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,11 +7,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.ragnlabs.movies.databinding.MovieItemBinding
-import com.ragnlabs.movies.util.LocalData
 import com.ragnlabs.movies.models.Movie
+import com.ragnlabs.movies.util.LocalData
 
-class MoviesAdapter() :
-    RecyclerView.Adapter<MoviesAdapter.MyViewHolder>() {
+class UpComingMoviesAdapter() :
+    RecyclerView.Adapter<UpComingMoviesAdapter.MyViewHolder>() {
 
     inner class MyViewHolder(val binding: MovieItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -26,7 +26,7 @@ class MoviesAdapter() :
         }
     }
 
-    private val differ = AsyncListDiffer(this, diffCallBack)
+    val differ = AsyncListDiffer(this, diffCallBack)
 
     var movies: List<Movie>
         get() = differ.currentList

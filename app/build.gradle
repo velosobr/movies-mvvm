@@ -39,7 +39,7 @@ ext {
     supportVersion = "1.1.0"
     retrofit_version = "2.9.0"
     lifecycle_version = "2.2.0"
-    coroutines_android_version = '1.4.1'
+    coroutines_android_version = '1.1.0'
     room_version = "2.2.5"
     coil_version = "1.1.1"
 }
@@ -64,8 +64,10 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // Coroutines
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_android_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_android_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_android_version"
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0-RC'
+
 
     // Coroutine Lifecycle Scopes"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"

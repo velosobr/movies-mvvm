@@ -13,6 +13,18 @@ interface ApiService {
         @Query("page") page: Int = 1,
     ): Response<MovieResponse>
 
+    @GET("/3/movie/top_rated")
+    suspend fun getTopRatedMovies(
+        @Query("api_key") apiKey: String = LocalData.API_KEY,
+        @Query("page") page: Int = 1,
+    ): Response<MovieResponse>
+
+    @GET("/3/movie/upcoming")
+    suspend fun getUpcomingMovies(
+        @Query("api_key") apiKey: String = LocalData.API_KEY,
+        @Query("page") page: Int = 1,
+    ): Response<MovieResponse>
+
     /**
      * Sample: https://api.themoviedb.org/3/search/movie?api_key=c701d68c016d5c91e50186be4b037841&language=en-US&query=ven&page=1&include_adult=false
      */

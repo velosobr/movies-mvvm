@@ -1,11 +1,16 @@
 package com.ragnlabs.movies
 
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ragnlabs.movies.adapter.MoviesAdapter
+import com.ragnlabs.movies.adapters.PopularMoviesAdapter
+import com.ragnlabs.movies.adapters.TopRatedMoviesAdapter
+import com.ragnlabs.movies.adapters.UpComingMoviesAdapter
 import com.ragnlabs.movies.databinding.ActivityMainBinding
+import com.ragnlabs.movies.util.Resource
 import com.ragnlabs.movies.viewmodels.MoviesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -13,7 +18,9 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var moviesAdapter: MoviesAdapter
+    private lateinit var popularMoviesAdapter: PopularMoviesAdapter
+    private lateinit var topRatedMoviesAdapter: TopRatedMoviesAdapter
+    private lateinit var upcomingMoviesAdapter: UpComingMoviesAdapter
     private val viewModel: MoviesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,19 +32,106 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadMoviesRecyclerView() {
-        moviesAdapter = MoviesAdapter()
 
-        binding.moviesListRecyclerView.apply {
-            adapter = moviesAdapter
+        setupPopularMovies()
+        setupTopRatedMovies()
+        setupUpcomingMovies()
+    }
+
+    private fun setupPopularMovies() {
+        popularMoviesAdapter = PopularMoviesAdapter()
+
+        binding.popularMoviesListRecyclerView.apply {
+            adapter = popularMoviesAdapter
             layoutManager = LinearLayoutManager(
                 this@MainActivity, LinearLayoutManager.HORIZONTAL,
                 false
             )
             setHasFixedSize(true)
         }
-        viewModel.popularMoviesList.observe(this, { moviesList ->
 
-            moviesAdapter.movies = moviesList
+        viewModel.popularMoviesList.observe(this, { moviesList ->
+            popularMoviesAdapter.movies = moviesList
         })
+    }
+
+    private fun setupTopRatedMovies() {
+        topRatedMoviesAdapter = TopRatedMoviesAdapter()
+
+        binding.topRatedMoviesListRecyclerView.apply {
+            adapter = topRatedMoviesAdapter
+            layoutManager = LinearLayoutManager(
+                this@MainActivity, LinearLayoutManager.HORIZONTAL,
+                false
+            )
+            setHasFixedSize(true)
+        }
+
+        viewModel.topRatedMoviesList.observe(
+            this,
+            { response ->
+                when (response) {
+                    is Resource.Success -> {
+                        hideProgress()
+                        response.data?.let { movieResponse ->
+                            topRatedMoviesAdapter.differ.submitList(movieResponse.results)
+                        }
+                    }
+                    is Resource.Error -> {
+                        hideProgress()
+                        response.message?.let { message ->
+                            Log.e("tag", "An error occurred in topRatedMoviesList: $message")
+                        }
+                    }
+                    is Resource.Loading -> {
+                        showProgressBar()
+                    }
+                }
+            }
+        )
+    }
+
+    private fun setupUpcomingMovies() {
+        upcomingMoviesAdapter = UpComingMoviesAdapter()
+
+        binding.upcomingMoviesListRecyclerView.apply {
+            adapter = upcomingMoviesAdapter
+            layoutManager = LinearLayoutManager(
+                this@MainActivity, LinearLayoutManager.HORIZONTAL,
+                false
+            )
+            setHasFixedSize(true)
+        }
+
+        viewModel.upcomingMoviesList.observe(
+            this,
+            { response ->
+                when (response) {
+                    is Resource.Success -> {
+                        hideProgress()
+                        response.data?.let { movieResponse ->
+                            upcomingMoviesAdapter.differ.submitList(movieResponse.results)
+                        }
+                    }
+                    is Resource.Error -> {
+                        hideProgress()
+                        response.message?.let { message ->
+                            Log.e("tag", "An error occurred in upcomingMoviesList: $message")
+                        }
+                    }
+                    is Resource.Loading -> {
+                        showProgressBar()
+                    }
+                }
+            }
+        )
+    }
+
+    private fun showProgressBar() {
+        binding.paginationProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgress() {
+        binding.paginationProgressBar.visibility = View.INVISIBLE
     }
 }
