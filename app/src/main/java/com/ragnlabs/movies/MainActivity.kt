@@ -1,13 +1,17 @@
 package com.ragnlabs.movies
 
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ragnlabs.movies.adapters.PopularMoviesAdapter
 import com.ragnlabs.movies.adapters.TopRatedMoviesAdapter
 import com.ragnlabs.movies.adapters.UpComingMoviesAdapter
 import com.ragnlabs.movies.databinding.ActivityMainBinding
+import com.ragnlabs.movies.util.Resource
 import com.ragnlabs.movies.viewmodels.MoviesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -81,8 +85,35 @@ class MainActivity : AppCompatActivity() {
             setHasFixedSize(true)
         }
 
-        viewModel.upcomingMoviesList.observe(this, { moviesList ->
-            upcomingMoviesAdapter.movies = moviesList
-        })
+        viewModel.upcomingMoviesList.observe(
+            this,
+            Observer { response ->
+                when (response) {
+                    is Resource.Success -> {
+                        hideProgress()
+                        response.data?.let { movieResponse ->
+                            upcomingMoviesAdapter.differ.submitList(movieResponse.results)
+                        }
+                    }
+                    is Resource.Error -> {
+                        hideProgress()
+                        response.message?.let { message ->
+                            Log.e("tag", "An error occurred: $message")
+                        }
+                    }
+                    is Resource.Loading -> {
+                        showProgressBar()
+                    }
+                }
+            }
+        )
+    }
+
+    private fun showProgressBar() {
+        binding.paginationProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgress() {
+        binding.paginationProgressBar.visibility = View.INVISIBLE
     }
 }

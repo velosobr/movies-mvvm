@@ -6,6 +6,12 @@ import com.ragnlabs.movies.repository.MovieRepository
 import com.ragnlabs.movies.util.Resource
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -15,16 +21,22 @@ import retrofit2.Response
 import java.lang.reflect.Method
 
 @RunWith(JUnit4::class)
+@ExperimentalCoroutinesApi
 class MoviesViewModelhandleSearchNewsResponse {
+// https://stackoverflow.com/questions/58303961/kotlin-coroutine-unit-test-fails-with-module-with-the-main-dispatcher-had-faile
 
     private lateinit var viewModel: MoviesViewModel
     private lateinit var repository: MovieRepository
     private val service = mockk<ApiService>()
     private lateinit var privatehandleSearchMoviesResponse: Method
     private var response: Response<MovieResponse> = mockk()
+    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
+    @ExperimentalCoroutinesApi
     @Before
     fun setup() {
+        Dispatchers.setMain(mainThreadSurrogate)
+
         repository = MovieRepository(service)
         viewModel = MoviesViewModel(repository)
         initConfigMethodhandleSearchMoviesResponseToPublic()
@@ -52,5 +64,12 @@ class MoviesViewModelhandleSearchNewsResponse {
             )
         // Make the private method accessible now (it's no more a private method)
         privatehandleSearchMoviesResponse.isAccessible = true
+    }
+
+    @ExperimentalCoroutinesApi
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain() // reset the main dispatcher to the original Main dispatcher
+        mainThreadSurrogate.close()
     }
 }
