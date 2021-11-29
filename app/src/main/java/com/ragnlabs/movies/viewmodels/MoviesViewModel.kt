@@ -36,7 +36,7 @@ class MoviesViewModel @Inject constructor(
         getUpcomingMovies()
     }
 
-    private fun getPopularMovies(page: Int = 1) = runBlocking {
+    fun getPopularMovies(page: Int = 1) = runBlocking {
 
         movieRepository.getPopularMovies(page).let { moviesResponse ->
 
@@ -57,7 +57,7 @@ class MoviesViewModel @Inject constructor(
         topRatedMoviesList.postValue(handleResponse(response))
     }
 
-    private fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
+    fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
         upcomingMoviesList.postValue(Resource.Loading())
         val response = movieRepository.getUpcomingMovies(page)
         upcomingMoviesList.postValue(handleResponse(response))
@@ -76,14 +76,5 @@ class MoviesViewModel @Inject constructor(
         searchMovies.postValue(Resource.Loading())
         val response = movieRepository.searchMovies(searchQuery = searchQuery)
         searchMovies.postValue(handleResponse(response))
-    }
-
-    private fun handleSearchMoviesResponseOLD(response: Response<MovieResponse>): Resource<MovieResponse> {
-        if (response.isSuccessful) {
-            response.body()?.let {
-                return Resource.Success(it)
-            }
-        }
-        return Resource.Error(response.message())
     }
 }
