@@ -18,10 +18,11 @@ Coroutine, LiveData, Retrofit2, Coil, Dagger-Hilt, mockk & JUnit.
   - Search movies
 
 ## improvements todo
- - fix unit tests
+ - In general Unit Tests
 
 ## improvements done
  - remove runblocking in MoviesViewModel and change for another best practice way of handling blocking threads.
+ -  - fix unit tests
 
 
 ## TO DO
