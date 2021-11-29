@@ -10,6 +10,7 @@ import com.ragnlabs.movies.models.MovieResponse
 import com.ragnlabs.movies.repository.MovieRepository
 import com.ragnlabs.movies.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import retrofit2.Response
@@ -24,7 +25,7 @@ class MoviesViewModel @Inject constructor(
     val popularMoviesList: LiveData<List<Movie>>
         get() = _popularMoviesList
 
-    val topRatedMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
+    val topRatedMoviesList: MutableLiveData<List<Movie>> = MutableLiveData()
 
     val upcomingMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
 
@@ -33,7 +34,7 @@ class MoviesViewModel @Inject constructor(
     init {
 // getPopularMovies()
         getTopRatedMovies()
-        getUpcomingMovies()
+        // getUpcomingMovies()
     }
 
     fun getPopularMovies(page: Int = 1) = runBlocking {
@@ -51,16 +52,28 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
-    private fun getTopRatedMovies(page: Int = 1) = viewModelScope.launch {
-        topRatedMoviesList.postValue(Resource.Loading())
-        val response = movieRepository.getTopRatedMovies(page)
-        topRatedMoviesList.postValue(handleResponse(response))
+    fun blabla() {
+        getTopRatedMovies()
     }
 
-    fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
-        upcomingMoviesList.postValue(Resource.Loading())
-        val response = movieRepository.getUpcomingMovies(page)
-        upcomingMoviesList.postValue(handleResponse(response))
+    fun getTopRatedMovies(page: Int = 1) = viewModelScope.launch {
+
+        val response = movieRepository.getTopRatedMovies(page)
+        topRatedMoviesList.postValue(response)
+    }
+
+    fun getUpcomingMovies(page: Int = 1): Job {
+        return viewModelScope.launch {
+            upcomingMoviesList.postValue(Resource.Loading())
+            val response = movieRepository.getUpcomingMovies(page)
+            upcomingMoviesList.postValue(handleResponse(response))
+        }
+    }
+
+    fun searchMovies(searchQuery: String) = viewModelScope.launch {
+        searchMovies.postValue(Resource.Loading())
+        val response = movieRepository.searchMovies(searchQuery = searchQuery)
+        searchMovies.postValue(handleResponse(response))
     }
 
     private fun handleResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
@@ -70,11 +83,5 @@ class MoviesViewModel @Inject constructor(
             }
         }
         return Resource.Error(response.message())
-    }
-
-    fun searchMovies(searchQuery: String) = viewModelScope.launch {
-        searchMovies.postValue(Resource.Loading())
-        val response = movieRepository.searchMovies(searchQuery = searchQuery)
-        searchMovies.postValue(handleResponse(response))
     }
 }

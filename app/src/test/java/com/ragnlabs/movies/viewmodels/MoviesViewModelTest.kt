@@ -2,8 +2,8 @@ package com.ragnlabs.movies.viewmodels
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.ragnlabs.movies.models.MovieResponse
-import com.ragnlabs.movies.util.Resource
+import com.ragnlabs.movies.models.Movie
+import com.ragnlabs.movies.repository.MovieRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -16,7 +16,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import retrofit2.Response
 
 @ExperimentalCoroutinesApi
 class MoviesViewModelTest {
@@ -25,8 +24,8 @@ class MoviesViewModelTest {
     val rule = InstantTaskExecutorRule()
 
     private val testDispatcher = TestCoroutineDispatcher()
-    private val repository: MovieRepository = mockk()
-    private val observer: Observer<Resource<MovieResponse>> = mockk(relaxed = true)
+    private val repository: MovieRepository = mockk(relaxed = true)
+    private val observer: Observer<List<Movie>> = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -34,23 +33,43 @@ class MoviesViewModelTest {
     }
 
     @After
-    fun tearDown() {
+    fun cleanUp() {
         Dispatchers.resetMain()
         testDispatcher.cleanupTestCoroutines()
     }
 
     @Test
     fun `when get upcoming movies is called then it should call repository get up`() {
-        val response: Response<MovieResponse> = mockk()
-        coEvery { repository.getUpcomingMovies(1) } returns response
-        instantiate().getUpcomingMovies()
+        val movie = Movie(
+            false,
+            "/70nxSw3mFBsGmtkvcs91PbjerwD.jpg",
+            listOf(
+                878,
+                28,
+                12
+            ),
+            580489,
+            "en",
+            "Venom: Let There Be Carnage",
+            "After finding a host body in investigative reporter Eddie Brock, the alien symbiote must face a new enemy, Carnage, the alter ego of serial killer Cletus Kasady.",
+            22273.069,
+            "/rjkmN1dniUHVYAtwuV3Tji7FsDO.jpg",
+            "2021-09-30",
+            "Venom: Let There Be Carnage",
+            false,
+            7.2,
+            3295
+        )
+        val response = listOf(movie)
+        coEvery { repository.getTopRatedMovies(1) } returns response
+        instantiate().getTopRatedMovies()
 
-        coVerify { repository.getUpcomingMovies(1) }
+        coVerify { repository.getTopRatedMovies(1) }
     }
 
     private fun instantiate(): MoviesViewModel {
         val viewModel = MoviesViewModel(repository)
-        viewModel.upcomingMoviesList.observeForever(observer)
+        viewModel.topRatedMoviesList.observeForever(observer)
         return viewModel
     }
 }

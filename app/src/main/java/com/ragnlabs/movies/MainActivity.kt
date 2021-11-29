@@ -69,24 +69,8 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.topRatedMoviesList.observe(
             this,
-            { response ->
-                when (response) {
-                    is Resource.Success -> {
-                        hideProgress()
-                        response.data?.let { movieResponse ->
-                            topRatedMoviesAdapter.differ.submitList(movieResponse.results)
-                        }
-                    }
-                    is Resource.Error -> {
-                        hideProgress()
-                        response.message?.let { message ->
-                            Log.e("tag", "An error occurred in topRatedMoviesList: $message")
-                        }
-                    }
-                    is Resource.Loading -> {
-                        showProgressBar()
-                    }
-                }
+            { movieResponse ->
+                topRatedMoviesAdapter.differ.submitList(movieResponse)
             }
         )
     }
