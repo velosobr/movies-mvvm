@@ -17,8 +17,12 @@ Coroutine, LiveData, Retrofit2, Coil, Dagger-Hilt, mockk & JUnit.
 ## Features in progress
   - Search movies
 
-## improvements
+## improvements todo
+ - fix unit tests
+
+## improvements done
  - remove runblocking in MoviesViewModel and change for another best practice way of handling blocking threads.
+
 
 ## TO DO
   - Save favorites movies in local database when longpress the moviecard
