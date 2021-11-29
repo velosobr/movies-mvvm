@@ -10,6 +10,7 @@ import com.ragnlabs.movies.models.MovieResponse
 import com.ragnlabs.movies.repository.MovieRepository
 import com.ragnlabs.movies.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import retrofit2.Response
@@ -24,7 +25,7 @@ class MoviesViewModel @Inject constructor(
     val popularMoviesList: LiveData<List<Movie>>
         get() = _popularMoviesList
 
-    val topRatedMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
+    val topRatedMoviesList: MutableLiveData<List<Movie>> = MutableLiveData()
 
     val upcomingMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
 
@@ -33,10 +34,10 @@ class MoviesViewModel @Inject constructor(
     init {
 // getPopularMovies()
         getTopRatedMovies()
-        getUpcomingMovies()
+        // getUpcomingMovies()
     }
 
-    private fun getPopularMovies(page: Int = 1) = runBlocking {
+    fun getPopularMovies(page: Int = 1) = runBlocking {
 
         movieRepository.getPopularMovies(page).let { moviesResponse ->
 
@@ -51,25 +52,22 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
-    private fun getTopRatedMovies(page: Int = 1) = viewModelScope.launch {
-        topRatedMoviesList.postValue(Resource.Loading())
+    fun blabla() {
+        getTopRatedMovies()
+    }
+
+    fun getTopRatedMovies(page: Int = 1) = viewModelScope.launch {
+
         val response = movieRepository.getTopRatedMovies(page)
-        topRatedMoviesList.postValue(handleResponse(response))
+        topRatedMoviesList.postValue(response)
     }
 
-    private fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
-        upcomingMoviesList.postValue(Resource.Loading())
-        val response = movieRepository.getUpcomingMovies(page)
-        upcomingMoviesList.postValue(handleResponse(response))
-    }
-
-    private fun handleResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
-        if (response.isSuccessful) {
-            response.body()?.let {
-                return Resource.Success(it)
-            }
+    fun getUpcomingMovies(page: Int = 1): Job {
+        return viewModelScope.launch {
+            upcomingMoviesList.postValue(Resource.Loading())
+            val response = movieRepository.getUpcomingMovies(page)
+            upcomingMoviesList.postValue(handleResponse(response))
         }
-        return Resource.Error(response.message())
     }
 
     fun searchMovies(searchQuery: String) = viewModelScope.launch {
@@ -78,7 +76,7 @@ class MoviesViewModel @Inject constructor(
         searchMovies.postValue(handleResponse(response))
     }
 
-    private fun handleSearchMoviesResponseOLD(response: Response<MovieResponse>): Resource<MovieResponse> {
+    private fun handleResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
         if (response.isSuccessful) {
             response.body()?.let {
                 return Resource.Success(it)
