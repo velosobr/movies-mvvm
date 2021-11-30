@@ -22,11 +22,11 @@ class MovieRepository @Inject constructor(
         return apiService.getTopRatedMovies(page = page).body()?.results
     }
 
-    suspend fun getUpcomingMovies(page: Int): Response<MovieResponse> {
-        return apiService.getUpcomingMovies(page = page)
+    suspend fun getUpcomingMovies(page: Int): List<Movie>? {
+        return apiService.getUpcomingMovies(page = page).body()?.results
     }
 
-    suspend fun searchMovies(searchQuery: String): Response<MovieResponse> {
-        return apiService.searchMovies(searchQuery = searchQuery)
+    suspend fun searchMovies(searchQuery: String): List<Movie>? {
+        return apiService.searchMovies(searchQuery = searchQuery).body()?.results
     }
 }

@@ -39,7 +39,7 @@ class MoviesViewModelTest {
     }
 
     @Test
-    fun `when get upcoming movies is called then it should call repository get up`() {
+    fun `when get top rated movies is called then it should call repository get top rated movies`() {
         val movie = Movie(
             false,
             "/70nxSw3mFBsGmtkvcs91PbjerwD.jpg",
