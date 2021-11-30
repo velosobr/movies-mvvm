@@ -6,12 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragnlabs.movies.models.Movie
-import com.ragnlabs.movies.models.MovieResponse
+import com.ragnlabs.movies.models.MovieBodyResponse
+import com.ragnlabs.movies.models.MoviesResult
 import com.ragnlabs.movies.repository.MovieRepository
 import com.ragnlabs.movies.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -33,10 +33,10 @@ class MoviesViewModel @Inject constructor(
     init {
         // getPopularMovies()
         getTopRatedMovies()
-        // getUpcomingMovies()
+        getUpcomingMovies()
     }
 
-    fun getPopularMovies(page: Int = 1) = runBlocking {
+    fun getPopularMovies(page: Int = 1) = viewModelScope.launch {
 
         movieRepository.getPopularMovies(page).let { moviesResponse ->
 
@@ -56,9 +56,37 @@ class MoviesViewModel @Inject constructor(
         topRatedMoviesList.postValue(response)
     }
 
+    /**
+     fun getUpcomingMoviesOLD(page: Int = 1) = viewModelScope.launch {
+     val response = movieRepository.getUpcomingMovies(page)
+     upcomingMoviesList.postValue(response)
+     }
+     */
     fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
-        val response = movieRepository.getUpcomingMovies(page)
-        upcomingMoviesList.postValue(response)
+        when (val result = movieRepository.getUpcomingMovies(page)) {
+            is MoviesResult.Success -> {
+                upcomingMoviesList.value = result.movies
+            }
+            is MoviesResult.ApiError -> {
+                if (result.statusCode == 401) {
+                    Log.d(
+                        "error-tag",
+                        "occurred API error on getUpcomingMovies: ${result.statusCode} "
+                    )
+                } else {
+                    Log.d(
+                        "error-tag",
+                        "occurred error on getUpcomingMovies: ${result.statusCode} "
+                    )
+                }
+            }
+            is MoviesResult.ServerError -> {
+                Log.d(
+                    "error-tag",
+                    "occurred a Server error on getUpcomingMovies: Erro catastrófico"
+                )
+            }
+        }
     }
 
     fun searchMovies(searchQuery: String) = viewModelScope.launch {
@@ -66,7 +94,7 @@ class MoviesViewModel @Inject constructor(
         searchMovies.postValue(response)
     }
 
-    private fun handleResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
+    private fun handleResponse(response: Response<MovieBodyResponse>): Resource<MovieBodyResponse> {
         if (response.isSuccessful) {
             response.body()?.let {
                 return Resource.Success(it)
