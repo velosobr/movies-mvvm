@@ -1,7 +1,6 @@
 package com.ragnlabs.movies
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,7 +9,6 @@ import com.ragnlabs.movies.adapters.PopularMoviesAdapter
 import com.ragnlabs.movies.adapters.TopRatedMoviesAdapter
 import com.ragnlabs.movies.adapters.UpComingMoviesAdapter
 import com.ragnlabs.movies.databinding.ActivityMainBinding
-import com.ragnlabs.movies.util.Resource
 import com.ragnlabs.movies.viewmodels.MoviesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -89,25 +87,10 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.upcomingMoviesList.observe(
             this,
-            { response ->
-                when (response) {
-                    is Resource.Success -> {
-                        hideProgress()
-                        response.data?.let { movieResponse ->
-                            upcomingMoviesAdapter.differ.submitList(movieResponse.results)
-                        }
-                    }
-                    is Resource.Error -> {
-                        hideProgress()
-                        response.message?.let { message ->
-                            Log.e("tag", "An error occurred in upcomingMoviesList: $message")
-                        }
-                    }
-                    is Resource.Loading -> {
-                        showProgressBar()
-                    }
-                }
+            { movieResponse ->
+                upcomingMoviesAdapter.differ.submitList(movieResponse)
             }
+
         )
     }
 

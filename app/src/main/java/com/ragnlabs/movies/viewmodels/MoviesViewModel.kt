@@ -10,7 +10,6 @@ import com.ragnlabs.movies.models.MovieResponse
 import com.ragnlabs.movies.repository.MovieRepository
 import com.ragnlabs.movies.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import retrofit2.Response
@@ -27,12 +26,12 @@ class MoviesViewModel @Inject constructor(
 
     val topRatedMoviesList: MutableLiveData<List<Movie>> = MutableLiveData()
 
-    val upcomingMoviesList: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
+    val upcomingMoviesList: MutableLiveData<List<Movie>> = MutableLiveData()
 
-    val searchMovies: MutableLiveData<Resource<MovieResponse>> = MutableLiveData()
+    val searchMovies: MutableLiveData<List<Movie>> = MutableLiveData()
 
     init {
-// getPopularMovies()
+        // getPopularMovies()
         getTopRatedMovies()
         // getUpcomingMovies()
     }
@@ -52,28 +51,19 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
-    fun blabla() {
-        getTopRatedMovies()
-    }
-
     fun getTopRatedMovies(page: Int = 1) = viewModelScope.launch {
-
         val response = movieRepository.getTopRatedMovies(page)
         topRatedMoviesList.postValue(response)
     }
 
-    fun getUpcomingMovies(page: Int = 1): Job {
-        return viewModelScope.launch {
-            upcomingMoviesList.postValue(Resource.Loading())
-            val response = movieRepository.getUpcomingMovies(page)
-            upcomingMoviesList.postValue(handleResponse(response))
-        }
+    fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
+        val response = movieRepository.getUpcomingMovies(page)
+        upcomingMoviesList.postValue(response)
     }
 
     fun searchMovies(searchQuery: String) = viewModelScope.launch {
-        searchMovies.postValue(Resource.Loading())
         val response = movieRepository.searchMovies(searchQuery = searchQuery)
-        searchMovies.postValue(handleResponse(response))
+        searchMovies.postValue(response)
     }
 
     private fun handleResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
