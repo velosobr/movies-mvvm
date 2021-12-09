@@ -1,18 +1,14 @@
 package com.ragnlabs.movies.viewmodels
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragnlabs.movies.models.Movie
-import com.ragnlabs.movies.models.MovieResponse
+import com.ragnlabs.movies.models.MoviesResult
 import com.ragnlabs.movies.repository.MovieRepository
-import com.ragnlabs.movies.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,9 +16,7 @@ class MoviesViewModel @Inject constructor(
     private val movieRepository: MovieRepository
 ) : ViewModel() {
 
-    private val _popularMoviesList = MutableLiveData<List<Movie>>()
-    val popularMoviesList: LiveData<List<Movie>>
-        get() = _popularMoviesList
+    val popularMoviesList: MutableLiveData<List<Movie>> = MutableLiveData()
 
     val topRatedMoviesList: MutableLiveData<List<Movie>> = MutableLiveData()
 
@@ -30,18 +24,18 @@ class MoviesViewModel @Inject constructor(
 
     val searchMovies: MutableLiveData<List<Movie>> = MutableLiveData()
 
-    init {
-        // getPopularMovies()
-        getTopRatedMovies()
-        // getUpcomingMovies()
-    }
+//    init {
+//        // getPopularMovies()
+//        getTopRatedMovies()
+// //        getUpcomingMovies()
+//    }
 
-    fun getPopularMovies(page: Int = 1) = runBlocking {
+    fun getPopularMovies(page: Int = 1) = viewModelScope.launch {
 
         movieRepository.getPopularMovies(page).let { moviesResponse ->
 
             if (moviesResponse.isSuccessful) {
-                _popularMoviesList.postValue(moviesResponse.body()?.results)
+                popularMoviesList.postValue(moviesResponse.body()?.results)
             } else {
                 Log.d(
                     "tag",
@@ -57,21 +51,34 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun getUpcomingMovies(page: Int = 1) = viewModelScope.launch {
-        val response = movieRepository.getUpcomingMovies(page)
-        upcomingMoviesList.postValue(response)
+        when (val result = movieRepository.getUpcomingMovies(page)) {
+            is MoviesResult.Success -> {
+                upcomingMoviesList.value = result.movies
+            }
+            is MoviesResult.ApiError -> {
+                if (result.statusCode == 401) {
+                    Log.d(
+                        "error-tag",
+                        "occurred API error on getUpcomingMovies: ${result.statusCode} "
+                    )
+                } else {
+                    Log.d(
+                        "error-tag",
+                        "occurred error on getUpcomingMovies: ${result.statusCode} "
+                    )
+                }
+            }
+            is MoviesResult.ServerError -> {
+                Log.d(
+                    "error-tag",
+                    "occurred a Server error on getUpcomingMovies: Erro catastrófico"
+                )
+            }
+        }
     }
 
     fun searchMovies(searchQuery: String) = viewModelScope.launch {
         val response = movieRepository.searchMovies(searchQuery = searchQuery)
         searchMovies.postValue(response)
-    }
-
-    private fun handleResponse(response: Response<MovieResponse>): Resource<MovieResponse> {
-        if (response.isSuccessful) {
-            response.body()?.let {
-                return Resource.Success(it)
-            }
-        }
-        return Resource.Error(response.message())
     }
 }

@@ -1,6 +1,6 @@
 package com.ragnlabs.movies.models
 
-data class MovieResponse(
+data class MovieBodyResponse(
     val page: Int,
     val results: List<Movie>,
     val total_pages: Int,
