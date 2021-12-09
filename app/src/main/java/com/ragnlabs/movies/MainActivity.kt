@@ -27,6 +27,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         loadMoviesRecyclerView()
+        bindViewModels()
+    }
+
+    private fun bindViewModels() {
+        viewModel.run {
+            getUpcomingMovies()
+            getTopRatedMovies()
+            getPopularMovies()
+        }
     }
 
     private fun loadMoviesRecyclerView() {

@@ -16,10 +16,6 @@ class MovieRepository @Inject constructor(
         return apiService.getPopularMovies(page = page)
     }
 
-    suspend fun onViewReady() {
-        getUpcomingMovies(1)
-    }
-
     suspend fun getTopRatedMovies(page: Int): List<Movie>? {
         return apiService.getTopRatedMovies(page = page).body()?.results
     }

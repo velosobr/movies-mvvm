@@ -39,7 +39,8 @@ class MoviesViewModelTest {
     }
 
     @Test
-    fun `when get top rated movies is called then it should call repository get top rated movies`() {
+    fun `when get topRated Movies is called then it should call repository get topRated movies`() {
+        // Arrange
         val movie = Movie(
             false,
             "/70nxSw3mFBsGmtkvcs91PbjerwD.jpg",
@@ -60,10 +61,12 @@ class MoviesViewModelTest {
             7.2,
             3295
         )
+
         val response = listOf(movie)
         coEvery { repository.getTopRatedMovies(1) } returns response
-        instantiate().getTopRatedMovies()
-
+        // Act
+        instantiate().getTopRatedMovies(1)
+        // Assert
         coVerify { repository.getTopRatedMovies(1) }
     }
 
